@@ -1,0 +1,28 @@
+name: macOS ARM64 Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Rust App on macOS ARM64
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Build Release Binary
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinwheel-macos-arm64
+          path: target/aarch64-apple-darwin/release/pinwheel
+          retention-days: 7
