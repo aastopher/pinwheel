@@ -46,7 +46,7 @@ pub fn randomize_quote(mut selected_quote: Signal<String>, quotes: &[String]) {
         let candidate = &quotes[index];
 
         // Load tracker from persistent storage.
-        let mut tracker = tracker::Tracker::load_default(5);
+        let mut tracker = tracker::Tracker::load_default(10);
         let validated_quote = tracker::validate_quote(candidate, quotes, &mut tracker);
         tracker.save_default();
 
