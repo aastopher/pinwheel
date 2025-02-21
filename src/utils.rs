@@ -51,7 +51,10 @@ pub fn randomize_quote(mut selected_quote: Signal<String>, quotes: &[String]) {
         tracker.save_default();
 
         selected_quote.set(validated_quote.clone());
-        println!("Randomize quote button clicked! New quote: {}", validated_quote);
+        println!(
+            "Randomize quote button clicked! New quote: {}",
+            validated_quote
+        );
     }
 }
 

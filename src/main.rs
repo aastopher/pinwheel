@@ -3,14 +3,14 @@
     windows_subsystem = "windows"
 )]
 
+mod tracker;
 /// Main module for Pinwheel application.
 ///
 /// This module sets up the Freya GUI and launches the app.
 mod utils;
-mod tracker;
 
 use freya::prelude::*;
-use utils::{get_quotes, copy_to_clipboard, randomize_quote, load_quotes_from_file};
+use utils::{copy_to_clipboard, get_quotes, load_quotes_from_file, randomize_quote};
 
 const ICON: &[u8] = include_bytes!("../assets/pinwheel.png");
 
@@ -37,9 +37,9 @@ fn Component() -> Element {
     let button_theme: &ButtonTheme = &theme.button;
 
     // Signal holding currently selected quote (owned String).
-    let mut selected_quote: Signal<String> = use_signal(|| "I eat stickers all the time, dude!".to_string());
+    let mut selected_quote: Signal<String> = use_signal(|| "".to_string());
     // Signal holding list of quotes.
-    let mut quotes: Signal<Vec<String>> = use_signal(|| get_quotes());
+    let mut quotes: Signal<Vec<String>> = use_signal(get_quotes);
 
     rsx!(
         // Display box for selected quote.
