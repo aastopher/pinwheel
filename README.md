@@ -1,6 +1,6 @@
 # Pinwheel
 
-Pinwheel is a simple Rust application built using [Freya](https://github.com/MaikKlein/fermi) GUI framework. Designed to help randomly select from a set of quotes. It randomly selects a quotes from a CSV file containing a single column of quotes, and ensures that recently used quotes (5) aren’t repeated using a persistent cache.
+Pinwheel is a simple Rust application built using [Freya](https://github.com/PlayForm/Freya) GUI framework. Designed to help randomly select from a set of quotes. It randomly selects a quotes from a CSV file containing a single column of quotes, and ensures that recently used quotes (5) aren’t repeated using a persistent cache.
 
 ## Features
 
