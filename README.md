@@ -9,3 +9,7 @@ Pinwheel is a simple Rust application built using [Freya](https://github.com/Pla
 
 - **Persistent Cache:**  
   Recently selected quotes are cached in an internal file stored in an OS-specific cache directory. Preventing repetition across sessions.
+
+---
+
+![app_preview](./assets/preview.png)

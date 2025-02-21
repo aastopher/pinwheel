@@ -108,7 +108,7 @@ fn main() {
         LaunchConfig::<()>::builder()
             .with_width(1200.0)
             .with_height(400.0)
-            .with_title("Title Pinwheel")
+            .with_title("Pinwheel")
             .with_icon(LaunchConfig::load_icon(ICON))
             .build(),
     );
