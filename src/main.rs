@@ -3,14 +3,20 @@
     windows_subsystem = "windows"
 )]
 
+/// Main module for Pinwheel application.
+///
+/// This module sets up the Freya GUI and launches the app.
 mod utils;
 mod tracker;
 
 use freya::prelude::*;
-use utils::{get_titles, copy_to_clipboard, randomize_title, load_titles_from_file};
+use utils::{get_quotes, copy_to_clipboard, randomize_quote, load_quotes_from_file};
 
 const ICON: &[u8] = include_bytes!("../assets/pinwheel.png");
 
+/// Constructs root application element.
+///
+/// Wraps `Component` in a `ThemeProvider` to use dark theme.
 fn app() -> Element {
     rsx!(
         ThemeProvider {
@@ -20,18 +26,23 @@ fn app() -> Element {
     )
 }
 
+/// Main component of the application.
+///
+/// This component sets up the UI layout including:
+/// - A display area for currently selected quote.
+/// - A button area with buttons for "Copy", "Randomize", and "Load" actions.
 #[allow(non_snake_case)]
 fn Component() -> Element {
     let theme: Theme = use_get_theme();
     let button_theme: &ButtonTheme = &theme.button;
 
-    // Signal holding the currently selected title (owned String).
-    let mut selected_title: Signal<String> = use_signal(|| "I eat stickers all the time, dude!".to_string());
-    // Signal holding the list of titles.
-    let mut titles: Signal<Vec<String>> = use_signal(|| get_titles());
+    // Signal holding currently selected quote (owned String).
+    let mut selected_quote: Signal<String> = use_signal(|| "I eat stickers all the time, dude!".to_string());
+    // Signal holding list of quotes.
+    let mut quotes: Signal<Vec<String>> = use_signal(|| get_quotes());
 
     rsx!(
-        // Title display area
+        // Display box for selected quote.
         rect {
             height: "50%",
             width: "100%",
@@ -44,10 +55,10 @@ fn Component() -> Element {
             label {
                 font_size: "55",
                 font_weight: "bold",
-                "{selected_title()}"
+                "{selected_quote()}"
             }
         }
-        // Button area
+        // Button box for actions.
         rect {
             height: "50%",
             width: "100%",
@@ -57,23 +68,26 @@ fn Component() -> Element {
             background: "{button_theme.background}",
             color: "rgb(221, 221, 221)",
             Button {
+                // Copy current quote to clipboard.
                 onclick: move |_| {
-                    copy_to_clipboard(selected_title().as_str());
+                    copy_to_clipboard(selected_quote().as_str());
                 },
                 label { "Copy" }
             }
             Button {
+                // Randomize current quote from list.
                 onclick: move |_| {
-                    randomize_title(selected_title, &titles());
+                    randomize_quote(selected_quote, &quotes());
                 },
                 label { "Randomize" }
             }
             Button {
+                // Load quotes from a CSV file.
                 onclick: move |_| {
-                    if let Some(new_titles) = load_titles_from_file() {
-                        titles.set(new_titles);
-                        if let Some(first) = titles().first() {
-                            selected_title.set(first.clone());
+                    if let Some(new_quotes) = load_quotes_from_file() {
+                        quotes.set(new_quotes);
+                        if let Some(first) = quotes().first() {
+                            selected_quote.set(first.clone());
                         }
                     } else {
                         println!("No file selected or error reading file.");
@@ -85,6 +99,9 @@ fn Component() -> Element {
     )
 }
 
+/// Application entry point.
+///
+/// Configures and launches Freya GUI using specified window parameters.
 fn main() {
     launch_cfg(
         app,

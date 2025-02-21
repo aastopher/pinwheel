@@ -5,71 +5,75 @@ use rand::Rng;
 use rfd::FileDialog;
 use std::fs;
 
-/// Returns the default titles as a vector of owned Strings.
-pub fn get_titles() -> Vec<String> {
-    include_str!("../resources/default_titles.csv")
+/// Returns default quotes as a vector of owned Strings.
+///
+/// Default quotes are embedded from `resources/default.csv`.
+/// Each line is trimmed of surrounding double quotes.
+pub fn get_quotes() -> Vec<String> {
+    include_str!("../resources/default.csv")
         .lines()
         .filter(|line| !line.trim().is_empty())
         .map(|line| line.trim_matches('"').to_string())
         .collect()
 }
 
-/// Copies the given text to the clipboard.
+/// Copies given text to the system clipboard.
+///
+/// # Arguments
+///
+/// * `text` - A string slice containing text to be copied.
 pub fn copy_to_clipboard(text: &str) {
     let mut clipboard: Clipboard = Clipboard::get();
     clipboard.write_text(text).unwrap();
-    println!("Copy button clicked! Title copied: {}", text);
+    println!("Copy button clicked! quote copied: {}", text);
 }
 
-// /// Randomizes the title from the provided list and updates the given signal.
-// /// Any surrounding double quotes are removed.
-// pub fn randomize_title(mut selected_title: Signal<String>, titles: &[String]) {
-//     if titles.is_empty() {
-//         println!("No titles loaded.");
-//     } else {
-//         let mut rng = rand::rng();
-//         let index = rng.random_range(0..titles.len());
-//         let random_title = &titles[index];
-//         selected_title.set(random_title.clone());
-//         println!("Randomize title button clicked! New title: {}", random_title);
-//     }
-// }
-
-pub fn randomize_title(mut selected_title: Signal<String>, titles: &[String]) {
-    if titles.is_empty() {
-        println!("No titles loaded.");
+/// Randomizes quote from provided list and updates the given signal.
+///
+/// Uses a persistent cache (via the tracker module) to avoid repeating recently used quotes.
+/// The validated quote is then set as the current quote.
+///
+/// # Arguments
+///
+/// * `selected_quote` - A signal holding current quote (owned String).
+/// * `quotes` - A slice of available quotes.
+pub fn randomize_quote(mut selected_quote: Signal<String>, quotes: &[String]) {
+    if quotes.is_empty() {
+        println!("No quotes loaded.");
     } else {
         let mut rng = rand::rng();
-        let index = rng.random_range(0..titles.len());
-        let candidate = &titles[index];
+        let index = rng.random_range(0..quotes.len());
+        let candidate = &quotes[index];
 
-        // Define the cache file path.
-        let cache_file = "assets/cache.json";
-        // Load the tracker with a capacity of 3.
-        let mut tracker = tracker::Tracker::load(cache_file, 5);
-        // Validate the candidate against the tracker.
-        let validated_title = tracker::validate_title(candidate, titles, &mut tracker);
-        // Save the updated tracker to persist the cache.
-        tracker.save(cache_file);
+        // Load tracker from persistent storage.
+        let mut tracker = tracker::Tracker::load_default(5);
+        let validated_quote = tracker::validate_quote(candidate, quotes, &mut tracker);
+        tracker.save_default();
 
-        selected_title.set(validated_title.clone());
-        println!("Randomize title button clicked! New title: {}", validated_title);
+        selected_quote.set(validated_quote.clone());
+        println!("Randomize quote button clicked! New quote: {}", validated_quote);
     }
 }
 
-
-/// Opens a file dialog for CSV files, reads the selected file, and returns its titles.
-pub fn load_titles_from_file() -> Option<Vec<String>> {
+/// Opens file dialog for CSV files, reads selected file, returns its quotes.
+///
+/// Each non-empty line is trimmed of surrounding double quotes.
+///
+/// # Returns
+///
+/// * `Some(Vec<String>)` if a file is selected and read successfully.
+/// * `None` if no file is selected or there is an error reading the file.
+pub fn load_quotes_from_file() -> Option<Vec<String>> {
     if let Some(path) = FileDialog::new().add_filter("CSV", &["csv"]).pick_file() {
         match fs::read_to_string(&path) {
             Ok(content) => {
-                let new_titles: Vec<String> = content
+                let new_quotes: Vec<String> = content
                     .lines()
                     .filter(|line| !line.trim().is_empty())
                     .map(|line| line.trim_matches('"').to_string())
                     .collect();
-                println!("Loaded titles from file: {:?}", path);
-                Some(new_titles)
+                println!("Loaded quotes from file: {:?}", path);
+                Some(new_quotes)
             }
             Err(e) => {
                 println!("Error reading file: {}", e);
